@@ -24,7 +24,7 @@ let refreshTokens = [];
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) =>
-    app.listen(7789, function () {
+    app.listen(PORT, function () {
       console.log("Node is running on local host on "+PORT);
     })
   );
