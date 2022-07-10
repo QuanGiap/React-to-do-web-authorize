@@ -1,0 +1,1 @@
+web: node index.js & node authSever.js & wait -n
