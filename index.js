@@ -8,6 +8,7 @@ const errorHelpers = require("./errorHelper/errorHelpers")
 const jwt = require("jsonwebtoken")
 require("dotenv").config();
 const dbURI = process.env.dbURL;
+const PORT = process.env.PORT || 5000;
 let app = express();
 app.use(cors());
 
@@ -16,8 +17,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 .then((result) =>
-  app.listen(5000, function () {
-    console.log("Node is running on local host:5000");
+  app.listen(PORT, function () {
+    console.log("Node is running on local host on" + PORT);
   })
 )
 function authenticationToken(req,res,next){
