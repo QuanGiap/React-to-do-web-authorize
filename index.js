@@ -24,11 +24,11 @@ mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
 function authenticationToken(req,res,next){
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(" ")[1]
-  // if(token == null) return res.sendStatus(401)
+  if(token == null) return res.sendStatus(401)
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err,user)=>{
       if(err) {
         console.log(err)
-        return res.json({result:false, message:"no token"});
+        return res.sendStatus(403)
       }
       req.user = user;
       next();
