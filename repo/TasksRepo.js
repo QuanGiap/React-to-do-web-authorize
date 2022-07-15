@@ -60,14 +60,16 @@ const TaskRepo = {
   //return the id of the new task insert
   insertNewTasks: function (resolve, reject) {
     let day = new Date().getDay();
+    //create copy of columns to avoid dublicate
+    let copy = JSON.parse(JSON.stringify(data.columns));
     //trasnfer number to day
     day = data.columnsId[day];
     //add new example task to day
-    data.columns[day].tasksToDo.push("task1");
+    copy[day].tasksToDo.push("task1");
     const task = new Tasks({
       lastUpdate: Date.now(),
       tasks: TaskRepo.revertModifiedData(data.tasks),
-      columns: TaskRepo.revertModifiedData(data.columns),
+      columns: TaskRepo.revertModifiedData(copy),
       columnsId: data.columnsId,
     });
     task
