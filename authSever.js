@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
-const AccountRouter = require("./routers/AccountRouter");
 const AccountRepo = require("./repo/AccountRepo");
 const errorHelpers = require("./errorHelper/errorHelpers");
 const jwt = require("jsonwebtoken");

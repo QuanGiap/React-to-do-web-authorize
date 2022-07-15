@@ -3,7 +3,18 @@ const Tasks = require("../Schema/Tasks");
 //basic data of tasks account
 const data = {
   //this data will change when fetch api
-  tasks: {},
+  tasks: {
+    task1: {
+      desciption: "Testing 1 of this really long note i just figure it out",
+      isTimer: true,
+      hours: 0,
+      minutes: 0,
+      seconds: 5,
+      hoursRemain: 0,
+      minutesRemain: 0,
+      secondsRemain: 5,
+    },
+  },
   //this data will change when fetch api
   columns: {
     monday: { tasksToDo: [] },
@@ -46,60 +57,13 @@ const TaskRepo = {
       };
     });
   },
-  //return account data base on given id
-  getTasks: function (id, resolve, reject) {
-    console.log(id);
-    if (id)
-      Tasks.findById(id)
-        .then((data) => {
-          data = data.toObject();
-          data.columns = TaskRepo.modifiedData(data.columns);
-          data.tasks = TaskRepo.modifiedData(data.tasks);
-          resolve(data);
-        })
-        .catch((err) => reject(err));
-    else resolve("");
-  },
-  //return true or false to show update is success or not
-  updateTasks: function (id, nameTask, newData, resolve, reject) {
-    Tasks.updateOne(
-      { _id: id, "tasks.name": nameTask },
-      {
-        $set: {
-          lastUpdate: Date.now(),
-          "tasks.$.value.hoursRemain": newData.hoursRemain,
-          "tasks.$.value.minutesRemain": newData.minutesRemain,
-          "tasks.$.value.secondsRemain": newData.secondsRemain,
-        },
-      }
-    )
-      .then(() => resolve(true))
-      .catch((err) => {
-        reject(err);
-      });
-  },
-  //return true or false to show update is success or not
-  updateAll: function (id, newData, resolve, reject) {
-    console.log(id);
-    console.log(newData.tasks);
-    console.log(newData.columns);
-    Tasks.updateOne(
-      { _id: id },
-      {
-        $set: {
-          lastUpdate: Date.now(),
-          tasks: TaskRepo.revertModifiedData(newData.tasks),
-          columns: TaskRepo.revertModifiedData(newData.columns),
-        },
-      }
-    )
-      .then(() => resolve(true))
-      .catch((err) => {
-        reject(err);
-      });
-  },
   //return the id of the new task insert
   insertNewTasks: function (resolve, reject) {
+    let day = new Date().getDay();
+    //trasnfer number to day
+    day = data.columnsId[day];
+    //add new example task to day
+    data.columns[day].tasksToDo.push("task1");
     const task = new Tasks({
       lastUpdate: Date.now(),
       tasks: TaskRepo.revertModifiedData(data.tasks),
