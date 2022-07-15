@@ -3,16 +3,26 @@ const bcrypt = require("bcrypt");
 const TaskRepo = require("./TasksRepo");
 require("dotenv").config();
 const AccountRepo = {
+  //checking if the name of the account just create is already exist
+  isAccountExist: function (name, resolve, reject) {
+    Accounts.findOne({ account: name }, { account: 1 })
+      .then((data) => {
+        if (data) {
+          resolve(true);
+        } else resolve(false);
+      })
+      .catch((err) => reject(err));
+  },
   //return the object contain IdData in mongodb, if null mean account not valid
-  checkAccount: function (name,checkPass, resolve, reject) {
+  checkAccount: function (name, checkPass, resolve, reject) {
     Accounts.findOne({ account: name }, { pass: 1, dataId: 1 })
       .then((data) => {
-        if (data){
-          bcrypt.compare(checkPass,data.pass,(err,result)=>{
-            if(err) return reject(err);
-            if(result) resolve(data.dataId);
+        if (data) {
+          bcrypt.compare(checkPass, data.pass, (err, result) => {
+            if (err) return reject(err);
+            if (result) resolve(data.dataId);
             else resolve(null);
-          })
+          });
           return;
         }
         resolve(null);
@@ -21,23 +31,26 @@ const AccountRepo = {
   },
   //return the document just inserted
   insertNewAccount: async function (name, pass, resolve, rejectNext) {
-    TaskRepo.insertNewTasks((id) => {
-      bcrypt.hash(pass, parseInt(process.env.hassNum)).then(newPass=>{
-         const account = new Accounts({
-        account: name,
-        pass: newPass,
-        dataId: id,
-      });
-      account
-        .save()
-        .then((result) => {
-          resolve(result);
-        })
-        .catch((err) => {
-          reject(err);
+    TaskRepo.insertNewTasks(
+      (id) => {
+        bcrypt.hash(pass, parseInt(process.env.hassNum)).then((newPass) => {
+          const account = new Accounts({
+            account: name,
+            pass: newPass,
+            dataId: id,
+          });
+          account
+            .save()
+            .then((result) => {
+              resolve(result);
+            })
+            .catch((err) => {
+              reject(err);
+            });
         });
-      });
-    },(err)=>rejectNext(err));
+      },
+      (err) => rejectNext(err)
+    );
   },
 };
 

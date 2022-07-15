@@ -9,7 +9,7 @@ let app = express();
 let router = express.Router();
 const PORT = process.env.PORT || 7789;
 
-const EXPIREDTIME="30m";
+const EXPIREDTIME = "30m";
 
 require("dotenv").config();
 const dbURI = process.env.dbURL;
@@ -24,22 +24,26 @@ mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then((result) =>
     app.listen(PORT, function () {
-      console.log("Node is running on local host on "+PORT);
+      console.log("Node is running on local host on " + PORT);
     })
   );
 //create new token
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: EXPIREDTIME });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: EXPIREDTIME,
+  });
 }
 
 //return object contain token and refresh token
-function createSignAccount(dataId){
-    const user = { dataId: dataId };
-    const accessToken = generateAccessToken(user);
-    const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-    refreshTokens.push(refreshToken);
-    setTimeout(()=>{refreshTokens = refreshTokens.filter((token) => token !== req.body.token)},36000000);
-    return{ accessToken: accessToken, refreshToken: refreshToken };
+function createSignAccount(dataId) {
+  const user = { dataId: dataId };
+  const accessToken = generateAccessToken(user);
+  const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+  refreshTokens.push(refreshToken);
+  setTimeout(() => {
+    refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
+  }, 36000000);
+  return { accessToken: accessToken, refreshToken: refreshToken,result:true };
 }
 router.delete("/logout", async (req, res) => {
   console.log(req.body.token);
@@ -55,10 +59,10 @@ router.post("/token", async (req, res) => {
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
       console.log(err);
-      return res.json({result:false});
+      return res.json({ result: false });
     }
     const accessToken = generateAccessToken({ dataId: user.dataId });
-    res.json({ accessToken: accessToken,result:true });
+    res.json({ accessToken: accessToken, result: true });
   });
 });
 router.post("/login", async function (req, res, next) {
@@ -71,8 +75,8 @@ router.post("/login", async function (req, res, next) {
     username,
     pass,
     (dataId) => {
-      if(dataId)res.json(createSignAccount(dataId));
-      else res.json({result:"Account's pass not correct or not found"})
+      if (dataId) res.json(createSignAccount(dataId));
+      else res.json({ result: "Account's pass not correct or not found" });
     },
     (err) => next(err)
   );
@@ -80,12 +84,24 @@ router.post("/login", async function (req, res, next) {
 
 router.post("/signUp", async function (req, res, next) {
   if (!req.body.name || !req.body.pass) return res.sendStatus(404);
-  AccountRepo.insertNewAccount(
+  //check if there is duplicate account
+  AccountRepo.isAccountExist(
     req.body.name,
-    req.body.pass,
-    (data) => {
-        console.log(data);
-        res.json(createSignAccount(data.dataId));
+    (result) => {
+      if (!result) {
+        AccountRepo.insertNewAccount(
+          req.body.name,
+          req.body.pass,
+          (data) => {
+            console.log(data);
+            res.json(createSignAccount(data.dataId));
+          },
+          (err) => next(err)
+        );
+      }
+      else{
+        res.json({result:false,message:"The name account is dublicate"})
+      }
     },
     (err) => next(err)
   );
