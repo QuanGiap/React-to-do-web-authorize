@@ -7,12 +7,12 @@ const data = {
     task1: {
       desciption: "Testing 1 of this really long note i just figure it out",
       isTimer: true,
-      hours: 0,
+      hours: 1,
       minutes: 0,
-      seconds: 5,
-      hoursRemain: 0,
+      seconds: 0,
+      hoursRemain: 1,
       minutesRemain: 0,
-      secondsRemain: 5,
+      secondsRemain: 0,
     },
   },
   //this data will change when fetch api
