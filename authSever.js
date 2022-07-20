@@ -9,7 +9,7 @@ let app = express();
 let router = express.Router();
 const PORT = process.env.PORT || 7789;
 
-const EXPIREDTIME = "10s";
+const EXPIREDTIME = "30m";
 
 require("dotenv").config();
 const dbURI = process.env.dbURL;
@@ -53,6 +53,7 @@ router.delete("/logout", async (req, res) => {
 
 router.post("/token", async (req, res) => {
   const refreshToken = req.body.token;
+  console.log(refreshTokens);
   //check if exist
   if (refreshToken == null) return res.sendStatus(401);
   if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
