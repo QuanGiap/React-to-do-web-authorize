@@ -9,7 +9,7 @@ let app = express();
 let router = express.Router();
 const PORT = process.env.PORT || 7789;
 
-const EXPIREDTIME = "30m";
+const EXPIREDTIME = "10s";
 
 require("dotenv").config();
 const dbURI = process.env.dbURL;
