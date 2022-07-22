@@ -18,7 +18,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-let refreshTokens = [];
+let refreshTokens = new Set();
 
 mongoose
   .connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -39,24 +39,23 @@ function createSignAccount(dataId) {
   const user = { dataId: dataId };
   const accessToken = generateAccessToken(user);
   const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-  refreshTokens.push(refreshToken);
+  refreshTokens.add(refreshToken);
   setTimeout(() => {
-    refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
+    refreshTokens.delete(refreshToken);
   }, 36000000);
   return { accessToken: accessToken, refreshToken: refreshToken,result:true };
 }
 router.delete("/logout", async (req, res) => {
   console.log(req.body.token);
-  refreshTokens = refreshTokens.filter((token) => token !== req.body.token);
+  refreshTokens.delete(req.body.token);
   res.sendStatus(204);
 });
 
 router.post("/token", async (req, res) => {
   const refreshToken = req.body.token;
-  console.log(refreshTokens);
   //check if exist
   if (refreshToken == null) return res.sendStatus(401);
-  if (!refreshTokens.includes(refreshToken)) return res.sendStatus(403);
+  if (!refreshTokens.has(refreshToken)) return res.sendStatus(403);
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
       console.log(err);
