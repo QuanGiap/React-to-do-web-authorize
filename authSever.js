@@ -9,7 +9,7 @@ let app = express();
 let router = express.Router();
 const PORT = process.env.PORT || 7789;
 
-const EXPIREDTIME = "30m";
+const EXPIREDTIME = "10s";
 
 require("dotenv").config();
 const dbURI = process.env.dbURL;
@@ -46,7 +46,7 @@ function createSignAccount(dataId) {
   return { accessToken: accessToken, refreshToken: refreshToken,result:true };
 }
 router.delete("/logout", async (req, res) => {
-  console.log(req.body.token);
+  // console.log(req.body.token);
   refreshTokens.delete(req.body.token);
   res.sendStatus(204);
 });
@@ -59,12 +59,20 @@ router.post("/token", async (req, res) => {
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
     if (err) {
       console.log(err);
-      return res.json({ result: false });
+      return res.status(401).json({ result: false });
     }
     const accessToken = generateAccessToken({ dataId: user.dataId });
     res.json({ accessToken: accessToken, result: true });
   });
 });
+// router.post("/checkAccount",(req,res,next)=>{
+//   AccountRepo.isAccountExist(req.body.name,(data)=>{
+//     res.json({result:data});
+//   },(err)=>{
+//     console.log(err);
+//     res.json({error:err,result:false});
+//   })
+// })
 router.post("/login", async function (req, res, next) {
   if (!req.body.name || !req.body.pass) return res.sendStatus(404);
   //Authentication
